@@ -1,0 +1,5 @@
+Name: roguelike
+Description: dungeon crawlin'
+SourcePath: source
+Requires: vamos
+Main: main.ooc
