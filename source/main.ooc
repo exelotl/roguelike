@@ -1,12 +1,12 @@
 use vamos
 import vamos/Engine
-import PlayState
+import Level
 
 main: func(argc:Int, argv:CString*) {
 	
-	playstate := PlayState new()
+	level := Level new()
 	
 	engine := Engine new(600, 600, 60)
 	engine caption = "roguelike"
-	engine start(playstate)
+	engine start(level)
 }
