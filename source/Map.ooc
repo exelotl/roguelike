@@ -3,18 +3,24 @@ import vamos/graphics/TileMap
 
 Map: class extends Entity {
 	
-	data: Int*
-	width, height: Int
+	data: UInt*
+	w, h: UInt // size in tiles
 	
-	init: func (=width, =height) {
-		data = gc_malloc(width * height * Int size) as Int*
+	tilemap: TileMap
+	
+	init: func (=w, =h) {
+		data = gc_malloc(w * h * UInt size) as Int*
+		
+		tilemap = TileMap new("tiles.png", w, h, 24, 18)
+		tilemap data = data
+		graphic = tilemap
 	}
 	
-	getState: func (x, y:Int) -> Int {
-		data[x + y*height]
+	get: func (x, y:UInt) -> UInt {
+		data[x + y*h]
 	}
-	setState: func (x, y, val:Int) -> Int {
-		data[x + y*height] = val
+	set: func (x, y, val:UInt) {
+		data[x + y*h] = val
 	}
 	
 }
