@@ -3,3 +3,4 @@ Description: dungeon crawlin'
 SourcePath: source
 Requires: vamos
 Main: main.ooc
+Imports: main.ooc
