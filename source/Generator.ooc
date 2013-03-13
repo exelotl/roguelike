@@ -27,20 +27,30 @@ Generator: class {
 				if (!dungeon splitted) {
 					vertical: Bool = Random randInt(0, 1) as Bool
 					if (vertical && dungeon h >= 16) {
-						y: Int = Random randInt(0, dungeon w - 16)
-						newDungeons add(Dungeon new(dungeon x, dungeon y, dungeon w, 8 + y))
-						newDungeons add(Dungeon new(dungeon x, dungeon y + 8 + y, dungeon w, dungeon h - 8 - y))
+							y: Int = Random randInt(0, dungeon h - 16)
+							newDungeons add(Dungeon new(dungeon x, dungeon y, dungeon w, 8 + y))
+							newDungeons add(Dungeon new(dungeon x, dungeon y + 8 + y, dungeon w, dungeon h - 8 - y))
 					} else if (!vertical && dungeon w >= 16) {
-						x: Int = Random randInt(0, dungeon h - 16)
-						newDungeons add(Dungeon new(dungeon x, dungeon y, 8 + x, dungeon h))
-						newDungeons add(Dungeon new(dungeon x + 8 + x, dungeon y, dungeon w - 8 - x, dungeon h))
+							x: Int = Random randInt(0, dungeon w - 16)
+							newDungeons add(Dungeon new(dungeon x, dungeon y, 8 + x, dungeon h))
+							newDungeons add(Dungeon new(dungeon x + 8 + x, dungeon y, dungeon w - 8 - x, dungeon h))
 					}
 					dungeon splitted = true
 				}
+
 			}
 			for (dungeon in newDungeons) dungeons add(dungeon)
 			if (newDungeons size == 0) running = false
 		}
+		
+		deleteDungeons := ArrayList<Dungeon> new()
+		for (dungeon in dungeons) {
+			if (dungeon w > 16 && dungeon h > 16)
+				deleteDungeons add(dungeon)
+		}
+		
+		for (dungeon in deleteDungeons)
+			dungeons remove(dungeon)
 	}
 
 	generateRoom: func (dungeon: Dungeon) {
@@ -86,7 +96,7 @@ Generator: class {
 		err: Int = dx - dy
 		while (true){
 			map set(q x as UInt, q y as UInt, 1)
- 			if (q x == p x && q y == p y) break
+			if (q x == p x && q y == p y) break
 			e2: Int = 2 * err
 			if (e2 > -dx) {
 				err -= dy
