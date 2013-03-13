@@ -16,7 +16,7 @@ Generator: class {
 
 	generate: func() {
 		bsp()
-		for (dungeon in dungeons) generateRoom(dungeon)
+		for (dungeon in dungeons) displayRoom(dungeon)
 	}
 	
 	bsp: func () {
@@ -52,7 +52,18 @@ Generator: class {
 		for (dungeon in deleteDungeons)
 			dungeons remove(dungeon)
 	}
-
+	
+	displayRoom: func (dungeon: Dungeon) {
+		for (x in dungeon x..(dungeon x + dungeon w)) {
+			map set(x, dungeon y, 1)
+			map set(x, dungeon y + dungeon h, 1)
+		}
+		for (y in dungeon y..(dungeon y + dungeon h)) {
+			map set(dungeon x, y, 1)
+			map set(dungeon x + dungeon w, y, 1)
+		}
+	}
+	
 	generateRoom: func (dungeon: Dungeon) {
 		points := ArrayList<Point> new()
 		pointsA := ArrayList<Point> new()
@@ -83,19 +94,19 @@ Generator: class {
 		for (point in pointsC) points add(point)
 		for (point in pointsD) points add(point)
 		for (i in 0..(points size - 1)) {
-			if (i != (points size - 1)) addLine(points[i] clone(), points[i + 1] clone())
-			else addLine(points[i] clone(), points[0] clone())
+			if (i != (points size - 1)) addLine(points[i] clone(), points[i + 1] clone(), dungeon)
+			else addLine(points[i] clone(), points[0] clone(), dungeon)
 		}
 	}
 	
-	addLine: func (p, q: Point) {
+	addLine: func (p, q: Point, dungeon: Dungeon) {
 		dx: Int = (p x - q x) abs()
 		dy: Int = (p y - q y) abs()
 		sx: Int = q x < p x ? 1 : -1
 		sy: Int = q y < p y ? 1 : -1
 		err: Int = dx - dy
 		while (true){
-			map set(q x as UInt, q y as UInt, 1)
+			map set((q x + dungeon x) as UInt, (q y + dungeon y) as UInt, 1)
 			if (q x == p x && q y == p y) break
 			e2: Int = 2 * err
 			if (e2 > -dx) {
