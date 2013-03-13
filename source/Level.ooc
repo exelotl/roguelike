@@ -36,8 +36,12 @@ Level: class extends State {
 	
 	update: func (dt:Double) {
 		super(dt)
-		//renderer camX = player x - renderer width/2
-		//renderer camY = player y - renderer height/2
+		renderer camX = player x - renderer width/2
+		renderer camY = player y - renderer height/2
+	}
+	
+	turn: func {
+		
 	}
 	
 }

@@ -11,7 +11,7 @@ Map: class extends Entity {
 	init: func (=w, =h) {
 		data = gc_malloc(w * h * UInt size) as Int*
 		
-		tilemap = TileMap new("tiles.png", w, h, 2, 2)
+		tilemap = TileMap new("tiles.png", w, h, 24, 18)
 		tilemap data = data
 		graphic = tilemap
 	}

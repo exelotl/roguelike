@@ -13,10 +13,10 @@ Controls: class extends Entity {
 	}
 	
 	update: func (dt:Double) {
-		if (Input keyPressed(SDLK_UP)) player walkUp()
-		if (Input keyPressed(SDLK_DOWN)) player walkDown()
-		if (Input keyPressed(SDLK_LEFT)) player walkLeft()
-		if (Input keyPressed(SDLK_RIGHT)) player walkRight()
+		if (Input keyPressed(SDLK_UP)) { player walkUp() }
+		if (Input keyPressed(SDLK_DOWN)) { player walkDown() }
+		if (Input keyPressed(SDLK_LEFT)) { player walkLeft() }
+		if (Input keyPressed(SDLK_RIGHT)) { player walkRight() }
 		
 	}
 	
