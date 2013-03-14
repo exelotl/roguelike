@@ -2,12 +2,12 @@ import vamos/Entity
 import vamos/graphics/SpriteMap
 import Actor, Level
 
-Player: class extends Actor {
+Slime: class extends Actor {
 	
 	init: func {
 		
-		anim = SpriteMap new("player.png", 24, 28)
-		anim y -= 17
+		anim = SpriteMap new("slime.png", 24, 12)
+		//anim y += 4
 	}
 	
 	added: func {

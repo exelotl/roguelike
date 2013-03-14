@@ -3,6 +3,7 @@ import structs/LinkedList
 import vamos/[Engine, State]
 import vamos/display/StateRenderer
 import Map, Actor, Player, Controls, Generator
+import mobs/Slime
 
 Level: class extends State {
 	
@@ -29,6 +30,9 @@ Level: class extends State {
 		player setPos(50, 50)
 		add(player)
 		
+		slime := Slime new() .setPos(40, 40)
+		add(slime)
+		
 		controls = Controls new()
 		add(controls)
 	}
@@ -50,6 +54,13 @@ Level: class extends State {
 		for (actor in actors) {
 			actor takeTurn()
 		}
+		
+		entities sort(|a, b|
+			if (a instanceOf?(Actor) && b instanceOf?(Actor)) {
+				return a as Actor mapY > b as Actor mapY
+			}
+			false
+		)
 	}
 	
 }
