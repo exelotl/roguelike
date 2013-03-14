@@ -2,15 +2,17 @@ import structs/LinkedList
 import math/Random
 import vamos/[Entity, Util]
 import vamos/graphics/SpriteMap
-import main, Level
+import main, Level, Map
 
 // dungeon entities and stuff
 
 Actor: class extends Entity {
 	
 	level: Level
+	map: Map
 	mapX: Int
 	mapY: Int
+	health: Int
 	facing: Direction
 	speed: Speed
 	actions := LinkedList<Action> new()
@@ -24,6 +26,7 @@ Actor: class extends Entity {
 	
 	added: func {
 		level = state as Level
+		map = level map
 		graphic = anim
 	}
 	
@@ -40,6 +43,30 @@ Actor: class extends Entity {
 		x = mapX*TILE_WIDTH
 		y = mapY*TILE_HEIGHT
 	}
+	
+	damage: func (amount:Int, source:Actor) {
+		health -= amount
+		if (health <= 0) {
+			health = 0
+			die(source)
+		}
+	}
+	
+	die: func (source:Actor)
+	
+	canMove: func~dir (dir:Direction) -> Bool {
+		(x, y) := (mapX, mapY)
+		if (dir & Direction UP) y -= 1
+		if (dir & Direction RIGHT) y += 1
+		if (dir & Direction DOWN) x -= 1
+		if (dir & Direction LEFT) x += 1
+		canMove(x, y)
+	}
+	
+	canMove: func~pos (x, y:Int) -> Bool {
+		!map get(x, y) isWall()
+	}
+	
 	
 	takeTurn: func {
 		if (actions size == 0)
@@ -84,6 +111,7 @@ Actor: class extends Entity {
 			case Direction LEFT => mapX -= 1
 			case Direction RIGHT => mapX += 1
 		}
+		facing = action direction
 		action turns -= 1
 	}
 	wait: func (action:Action) {

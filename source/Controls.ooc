@@ -1,6 +1,9 @@
 import sdl2/Event
 import vamos/[Entity, Input]
 import Level, Actor, Player
+import structs/HashMap
+
+//keyDirections: HashMap<
 
 Controls: class extends Entity {
 	

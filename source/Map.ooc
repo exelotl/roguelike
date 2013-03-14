@@ -24,3 +24,9 @@ Map: class extends Entity {
 	}
 	
 }
+
+extend UInt {
+	isWall: func -> Bool {
+		this == 0
+	}
+}

@@ -7,7 +7,6 @@ Slime: class extends Actor {
 	init: func {
 		
 		anim = SpriteMap new("slime.png", 24, 12)
-		//anim y += 4
 	}
 	
 	added: func {

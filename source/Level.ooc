@@ -56,10 +56,9 @@ Level: class extends State {
 		}
 		
 		entities sort(|a, b|
-			if (a instanceOf?(Actor) && b instanceOf?(Actor)) {
-				return a as Actor mapY > b as Actor mapY
-			}
-			false
+			return a instanceOf?(Actor) \
+			    && b instanceOf?(Actor) \
+			    && a as Actor mapY > b as Actor mapY
 		)
 	}
 	
