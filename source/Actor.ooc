@@ -57,14 +57,14 @@ Actor: class extends Entity {
 	canMove: func~dir (dir:Direction) -> Bool {
 		(x, y) := (mapX, mapY)
 		if (dir & Direction UP) y -= 1
-		if (dir & Direction RIGHT) y += 1
-		if (dir & Direction DOWN) x -= 1
-		if (dir & Direction LEFT) x += 1
+		if (dir & Direction DOWN) y += 1
+		if (dir & Direction LEFT) x -= 1
+		if (dir & Direction RIGHT) x += 1
 		canMove(x, y)
 	}
 	
 	canMove: func~pos (x, y:Int) -> Bool {
-		!map get(x, y) isWall()
+		!(map get(x, y) isWall())
 	}
 	
 	
@@ -73,8 +73,12 @@ Actor: class extends Entity {
 			decideAction()
 			
 		action := actions first()
-		doAction(action)
+		action complete = false
 		
+		while (!action complete)
+			doAction(action)
+		
+		action turns -= 1
 		if (action turns <= 0)
 			actions removeAt(0)
 	}
@@ -105,20 +109,22 @@ Actor: class extends Entity {
 	}
 	
 	move: func (action:Action) {
-		match (action direction) {
-			case Direction UP => mapY -= 1
-			case Direction DOWN => mapY += 1
-			case Direction LEFT => mapX -= 1
-			case Direction RIGHT => mapX += 1
-		}
 		facing = action direction
-		action turns -= 1
+		if (canMove(facing)) {
+			match (facing) {
+				case Direction UP => mapY -= 1
+				case Direction DOWN => mapY += 1
+				case Direction LEFT => mapX -= 1
+				case Direction RIGHT => mapX += 1
+			}
+		}
+		action complete = true
 	}
 	wait: func (action:Action) {
-		action turns -= 1
+		action complete = true
 	}
 	attack: func (action:Action) {
-		action turns -= 1
+		action complete = true
 	}
 	
 }
@@ -126,6 +132,7 @@ Actor: class extends Entity {
 Action: class {
 	
 	type: ActionType
+	complete: Bool
 	source: Entity
 	target: Entity
 	turns: UInt = 1

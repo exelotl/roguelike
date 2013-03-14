@@ -23,7 +23,7 @@ Level: class extends State {
 		
 		map = Map new(100, 100)
 		add(map)
-		generator: Generator = Generator new(map)
+		generator := Generator new(map)
 		generator generate()
 		
 		player = Player new()

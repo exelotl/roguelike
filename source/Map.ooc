@@ -14,19 +14,26 @@ Map: class extends Entity {
 		tilemap = TileMap new("tiles.png", w, h, 24, 18)
 		tilemap data = data
 		graphic = tilemap
+		clear(2)
 	}
 	
-	get: func (x, y:UInt) -> UInt {
-		data[x + y*h]
+	get: inline func(x, y:UInt) -> UInt {
+		(x < w && y < h) ? data[x + y*w] : 0
 	}
-	set: func (x, y, val:UInt) {
-		data[x + y*h] = val
+	set: inline func(x, y, val:UInt) {
+		if (x < w && y < h)
+			data[x + y*w] = val
 	}
 	
+	clear: func (val:UInt) {
+		for (x in 0..w)
+			for (y in 0..h)
+				set(x, y, val)
+	}
 }
 
 extend UInt {
 	isWall: func -> Bool {
-		this == 0
+		this == 1
 	}
 }

@@ -9,6 +9,13 @@ Generator: class {
 	map: Map
 	dungeons: ArrayList<Dungeon>
 	
+	roomW := 20
+	roomH := 20
+	roomPadding: Double = 0.1
+	roomMargin := 20
+	roomMinPoints := 6
+	roomMaxPoints := 10
+	
 	init: func (=map) {
 		dungeons = ArrayList<Dungeon> new()
 		dungeons add(Dungeon new(0, 0, map w, map h))
@@ -18,7 +25,7 @@ Generator: class {
 		bsp()
 		for (dungeon in dungeons) {
 			// displayRoom(dungeon)
-			generateRoom(dungeon, 1/4, 1, 2, 4)
+			generateRoom(dungeon)
 		}
 	}
 	
@@ -27,22 +34,22 @@ Generator: class {
 		while (running) {
 			newDungeons := ArrayList<Dungeon> new()
 			for (dungeon in dungeons) {
-				if (!dungeon splitted) {
-					vertical: Bool = Random randInt(0, 1) as Bool
-					if (vertical && dungeon h >= 20) {
-						dungeon splitted = true
+				if (!dungeon split) {
+					vertical: Bool = rand(0, 1) as Bool
+					if (vertical && dungeon h >= roomH) {
+						dungeon split = true
 						dungeon destroyed = true
-						y: Int = Random randInt(0, dungeon h - 20)
-						newDungeons add(Dungeon new(dungeon x, dungeon y, dungeon w, 10 + y))
-						newDungeons add(Dungeon new(dungeon x, dungeon y + 10 + y, dungeon w, dungeon h - 10 - y))
-					} else if (!vertical && dungeon w >= 20) {
-						dungeon splitted = true
+						y: Int = rand(0, dungeon h - roomH)
+						newDungeons add(Dungeon new(dungeon x, dungeon y, dungeon w, roomH*0.5 + y))
+						newDungeons add(Dungeon new(dungeon x, dungeon y + roomH*0.5 + y, dungeon w, dungeon h - roomH*0.5 - y))
+					} else if (!vertical && dungeon w >= roomW) {
+						dungeon split = true
 						dungeon destroyed = true
-						x: Int = Random randInt(0, dungeon w - 20)
-						newDungeons add(Dungeon new(dungeon x, dungeon y, 10 + x, dungeon h))
-						newDungeons add(Dungeon new(dungeon x + 10 + x, dungeon y, dungeon w - 10 - x, dungeon h))
+						x: Int = rand(0, dungeon w - roomW)
+						newDungeons add(Dungeon new(dungeon x, dungeon y, roomW*0.5 + x, dungeon h))
+						newDungeons add(Dungeon new(dungeon x + roomW*0.5 + x, dungeon y, dungeon w - roomW*0.5 - x, dungeon h))
 					}
-					if (dungeon w < 25 && dungeon h < 25) dungeon splitted = true
+					if (dungeon w < roomW*1.2 && dungeon h < roomH*1.2) dungeon split = true
 				}
 
 			}
@@ -71,29 +78,29 @@ Generator: class {
 		}
 	}
 	
-	generateRoom: func (dungeon: Dungeon, padding: Double, offset, minPoints, maxPoints: Int) {
+	generateRoom: func (dungeon:Dungeon) {
 		points := ArrayList<Point> new()
 		pointsA := ArrayList<Point> new()
 		pointsB := ArrayList<Point> new()
 		pointsC := ArrayList<Point> new()
 		pointsD := ArrayList<Point> new()
-		padding = min(padding, 0.5)
-		minPoints = max(1, minPoints)
-		maxPoints = max(maxPoints, minPoints)
-		offset = min(min(dungeon w * padding, dungeon h * padding), offset)
-		borderX: Int = Random randInt(2, dungeon w * padding)
-		borderY: Int = Random randInt(2, dungeon h * padding)
+		padding := roomPadding clamp(0, 0.5)
+		minPoints := max(1, roomMinPoints)
+		maxPoints := max(roomMaxPoints, minPoints)
+		margin := min(min(dungeon w * padding, dungeon h * padding), roomMargin)
+		borderX: Int = rand(2, dungeon w * padding)
+		borderY: Int = rand(2, dungeon h * padding)
 		for (i in 0..4) {
-			points: Int = Random randInt(minPoints, maxPoints)
+			points: Int = rand(minPoints, maxPoints)
 			match (i) {
 				case 0 =>
-					for (i in 1..points) pointsA add(Point new(Random randInt(offset + borderX, dungeon w - borderX - offset), Random randInt(offset, offset + borderY)))
+					for (i in 1..points) pointsA add(Point new(rand(margin + borderX, dungeon w - borderX - margin), rand(margin, margin + borderY)))
 				case 1 =>
-					for (i in 1..points) pointsB add(Point new(Random randInt(dungeon w - borderX - offset, dungeon w - offset), Random randInt(borderY + offset, dungeon h - borderY - offset)))
+					for (i in 1..points) pointsB add(Point new(rand(dungeon w - borderX - margin, dungeon w - margin), rand(borderY + margin, dungeon h - borderY - margin)))
 				case 2 =>
-					for (i in 1..points) pointsC add(Point new(Random randInt(offset + borderX, dungeon w - borderX - offset), Random randInt(dungeon h - borderY - offset, dungeon h - offset)))
+					for (i in 1..points) pointsC add(Point new(rand(margin + borderX, dungeon w - borderX - margin), rand(dungeon h - borderY - margin, dungeon h - margin)))
 				case 3 =>
-					for (i in 1..points) pointsD add(Point new(Random randInt(offset, borderX + offset), Random randInt(borderY + offset, dungeon h - borderY - offset)))
+					for (i in 1..points) pointsD add(Point new(rand(margin, borderX + margin), rand(borderY + margin, dungeon h - borderY - margin)))
 			}
 		}
 		pointsA sort(|a, b| a x > b x)
@@ -130,11 +137,16 @@ Generator: class {
 			}
 		}
 	}
+	
+	rand: static func (a, b:Int) -> Int {
+		if (a >= b) return a
+		return Random randInt(a, b)
+	}
 }
 
 Dungeon: class extends Rect {
 	
-	splitted: Bool = false
+	split: Bool = false
 	destroyed: Bool = false
 	
 	init: func (x, y, w, h: Double) {
