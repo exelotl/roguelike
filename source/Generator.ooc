@@ -103,7 +103,7 @@ Generator: class {
 		for (i in 0..(points size - 1)) {
 			addLine(points[i] clone(), points[i + 1] clone(), dungeon)
 		}
-		// addLine(points[points size] clone(), points[0] clone(), dungeon) // this line errors
+		addLine(points[points size - 1] clone(), points[0] clone(), dungeon) // this line errors
 	}
 	
 	addLine: func (p, q: Point, dungeon: Dungeon) {
