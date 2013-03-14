@@ -20,9 +20,4 @@ Player: class extends Actor {
 	update: func (dt:Double) {
 		super(dt)
 	}
-	
-	walkUp: func { super(); level turn() }
-	walkDown: func { super(); level turn() }
-	walkLeft: func { super(); level turn() }
-	walkRight: func { super(); level turn() }
 }

@@ -1,6 +1,6 @@
 import sdl2/Event
 import vamos/[Entity, Input]
-import Level, Player
+import Level, Actor, Player
 
 Controls: class extends Entity {
 	
@@ -13,11 +13,28 @@ Controls: class extends Entity {
 	}
 	
 	update: func (dt:Double) {
-		if (Input keyPressed(SDLK_UP)) { player walkUp() }
-		if (Input keyPressed(SDLK_DOWN)) { player walkDown() }
-		if (Input keyPressed(SDLK_LEFT)) { player walkLeft() }
-		if (Input keyPressed(SDLK_RIGHT)) { player walkRight() }
+		action: Action
+		if (Input keyPressed(SDLK_UP)) {
+			action = Action new(ActionType MOVE)
+			action direction = Direction UP
+		}
+		if (Input keyPressed(SDLK_DOWN)) {
+			action = Action new(ActionType MOVE)
+			action direction = Direction DOWN
+		}
+		if (Input keyPressed(SDLK_LEFT)) {
+			action = Action new(ActionType MOVE)
+			action direction = Direction LEFT
+		}
+		if (Input keyPressed(SDLK_RIGHT)) {
+			action = Action new(ActionType MOVE)
+			action direction = Direction RIGHT
+		}
 		
+		if (action) {
+			player addAction(action)
+			level turn()
+		}
 	}
 	
 }

@@ -1,11 +1,13 @@
 import math/Random
+import structs/LinkedList
 import vamos/[Engine, State]
 import vamos/display/StateRenderer
-import Map, Player, Controls, Generator
+import Map, Actor, Player, Controls, Generator
 
 Level: class extends State {
 	
 	map: Map
+	actors := LinkedList<Actor> new()
 	player: Player
 	controls: Controls
 	
@@ -19,9 +21,6 @@ Level: class extends State {
 		renderer = engine stateRenderer
 		
 		map = Map new(100, 100)
-		// for (x in 0..map w)
-			// for (y in 0..map h)
-				// map set(x, y, Random randInt(0, 5))
 		add(map)
 		generator: Generator = Generator new(map)
 		generator generate()
@@ -34,6 +33,12 @@ Level: class extends State {
 		add(controls)
 	}
 	
+	add: func~actor (actor:Actor) {
+		"adding actor '%s'" printfln(actor class name)
+		actors add(actor)
+		super(actor)
+	}
+	
 	update: func (dt:Double) {
 		super(dt)
 		renderer camX = player x - renderer width/2
@@ -41,7 +46,10 @@ Level: class extends State {
 	}
 	
 	turn: func {
-		
+		"updating the world" println()
+		for (actor in actors) {
+			actor takeTurn()
+		}
 	}
 	
 }
