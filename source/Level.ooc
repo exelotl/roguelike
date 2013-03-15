@@ -21,16 +21,16 @@ Level: class extends State {
 	create: func {
 		renderer = engine stateRenderer
 		
-		map = Map new(100, 100)
+		map = Map new(60, 60)
 		add(map)
 		generator := Generator new(map)
 		generator generate()
 		
 		player = Player new()
-		player setPos(50, 50)
+		player setPos(30, 30)
 		add(player)
 		
-		slime := Slime new() .setPos(40, 40)
+		slime := Slime new() .setPos(20, 20)
 		add(slime)
 		
 		controls = Controls new()

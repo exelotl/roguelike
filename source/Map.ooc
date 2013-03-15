@@ -1,7 +1,7 @@
 import structs/ArrayList
 import vamos/[Entity, Util]
 import vamos/graphics/TileMap
-import main
+import main, BlockRow
 
 Map: class extends Entity {
 	
@@ -12,11 +12,16 @@ Map: class extends Entity {
 	
 	init: func (=w, =h) {
 		data = gc_malloc(w * h * UInt size) as Block*
+		clear(Block ROCK)
 		
 		tilemap = TileMap new("tiles.png", w, h, TILE_W, TILE_H)
 		tilemap data = data
 		graphic = tilemap
-		clear(Block ROCK)
+	}
+	
+	added: func {
+		for (i in 0..h)
+			state add(BlockRow new(data, i, w))
 	}
 	
 	get: inline func(x, y:UInt) -> Block {
@@ -60,7 +65,10 @@ Map: class extends Entity {
 		}
 		set(x, y, val)
 	}
-			
+	
+	floodFill: func (x, y:UInt, val:Block) {
+		set(x, y, Block EMPTY)
+	}
 	
 	drawFilledRect: func(x0, y0, x1, y1:UInt, val:Block) {
 		for (x in x0..x1+1)

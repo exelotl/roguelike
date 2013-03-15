@@ -12,10 +12,10 @@ Generator: class {
 	
 	roomW := 20
 	roomH := 20
-	roomPadding: Double = 0.1
-	roomMargin := 20
-	roomMinPoints := 2
-	roomMaxPoints := 3
+	roomPadding: Double = 0.01
+	roomMargin := 2
+	roomMinPoints := 3
+	roomMaxPoints := 4
 	
 	init: func (=map) {
 		dungeons add(Dungeon new(1, 1, map w-2, map h-2))
@@ -25,7 +25,7 @@ Generator: class {
 		generateDungeons()
 		for (dungeon in dungeons) {
 			if (dungeon visible)
-				generatePolygonRoom(dungeon)
+				generateRoom(dungeon)
 		}
 		generatePaths()
 		removeAdjacentDoors()
@@ -55,10 +55,13 @@ Generator: class {
 						newDungeons add(d1) .add(d2)
 					}
 					if (dungeon w < roomW*1.2 && dungeon h < roomH*1.2) dungeon split = true
+					if (rand(0, 2) == 0)
+						dungeon visible = false
 				}
 
 			}
-			for (dungeon in newDungeons) dungeons add(dungeon)
+			for (dungeon in newDungeons)
+				dungeons add(dungeon)
 			if (newDungeons size == 0) break
 		}
 	}
@@ -95,7 +98,7 @@ Generator: class {
 		for (x in 0..map w)
 			for (y in 0..map h)
 				if (map get(x, y) == Block DOOR && map countNeighbours(x, y, Block DOOR))
-					map set(x, y, Block WALL)
+					map set(x, y, Block PATH)
 	}
 	
 	displayRoom: func (dungeon: Dungeon) {
@@ -112,10 +115,12 @@ Generator: class {
 	generateRoom: func (dungeon:Dungeon) {
 		padding := roomPadding clamp(0, 0.5)
 		margin := min(min(dungeon w * padding, dungeon h * padding), roomMargin)
-		x0 := dungeon x + margin
-		y0 := dungeon y + margin
-		x1 := dungeon x + dungeon h - margin
-		y1 := dungeon y + dungeon h - margin
+		borderX := rand(2, dungeon w * padding)
+		borderY := rand(2, dungeon h * padding)
+		x0 := dungeon x + margin + borderX
+		y0 := dungeon y + margin + borderY
+		x1 := dungeon x + dungeon w - margin - borderX
+		y1 := dungeon y + dungeon h - margin - borderY
 		map drawFilledRect(x0, y0, x1, y1, Block FLOOR)
 		map drawRect(x0-1, y0-1, x1+1, y1+1, Block WALL)
 	}
@@ -157,6 +162,11 @@ Generator: class {
 		for (i in 0..(points size - 1))
 			addLine(points[i], points[i + 1], dungeon)
 		addLine(points[points size - 1], points[0], dungeon)
+		
+		map floodFill(
+			(dungeon x + 1) + (dungeon w-2)*0.5,
+			(dungeon y + 1) + (dungeon h-2)*0.5,
+			Block FLOOR)
 	}
 	
 	addLine: func (p, q:Point, dungeon:Dungeon) {
