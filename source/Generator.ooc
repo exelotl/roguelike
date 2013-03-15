@@ -12,20 +12,20 @@ Generator: class {
 	
 	roomW := 20
 	roomH := 20
-	roomPadding: Double = 0.3
+	roomPadding: Double = 0.1
 	roomMargin := 20
-	roomMinPoints := 6
-	roomMaxPoints := 10
+	roomMinPoints := 2
+	roomMaxPoints := 3
 	
 	init: func (=map) {
-		dungeons add(Dungeon new(0, 0, map w-1, map h-1))
+		dungeons add(Dungeon new(1, 1, map w-2, map h-2))
 	}
 
 	generate: func() {
 		generateDungeons()
 		for (dungeon in dungeons) {
 			if (dungeon visible)
-				generateRoom(dungeon)
+				generatePolygonRoom(dungeon)
 		}
 		generatePaths()
 		removeAdjacentDoors()

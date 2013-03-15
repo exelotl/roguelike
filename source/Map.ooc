@@ -26,29 +26,39 @@ Map: class extends Entity {
 		if (x < w && y < h)
 			data[x + y*w] = val
 	}
-	
-	drawLine: func (x0, y0, x1, y1:UInt, val:Block) {
-		if (x0 > x1) (x0, x1) = (x1, x0)
-		if (y0 > y1) (y0, y1) = (y1, y0)
-		dx := (x1 - x0) abs()
-		dy := (y1 - y0) abs()
-		sx := x0 < x1 ? 1 : -1
-		sy := y0 < y1 ? 1 : -1
-		err := dx - dy
-		while (true) {
-			set(x0, y0, val)
-			if (x0 == x1 && y0 == y1) break
-			e2 := 2 * err
-			if (e2 > -dx) {
-				err -= dy
-				x0 += sx
+
+	drawLine: func (x, y, x2, y2:Int, val:Block) {
+		dx := (x2 - x) abs()
+		dy := (y2 - y) abs()
+		sx := x < x2 ? 1 : -1
+		sy := y < y2 ? 1 : -1
+		
+		if (dx > dy) {
+			d := dy - dx * 0.5
+
+			while (x != x2) {
+				set(x, y, val)
+				if (d > 0 || (d == 0 && sx == 1)) {
+					y += sy
+					d -= dx
+				}
+				x += sx
+				d += dy
 			}
-			if (e2 < dx) {
-				err += dx
-				y0 += sy
+		} else {
+			d := dx - dy * 0.5
+
+			while (y != y2) {
+				set(x, y, val)
+				if (d > 0 || (d == 0 && sy == 1)) {
+					x += sx
+				}
+				y += sy
 			}
 		}
+		set(x, y, val)
 	}
+			
 	
 	drawFilledRect: func(x0, y0, x1, y1:UInt, val:Block) {
 		for (x in x0..x1+1)
