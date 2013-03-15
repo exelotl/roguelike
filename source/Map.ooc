@@ -52,8 +52,10 @@ Map: class extends Entity {
 				set(x, y, val)
 				if (d > 0 || (d == 0 && sy == 1)) {
 					x += sx
+					d -= dy
 				}
 				y += sy
+				d += dx
 			}
 		}
 		set(x, y, val)
