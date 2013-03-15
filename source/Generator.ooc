@@ -7,7 +7,8 @@ import math
 Generator: class {
 	
 	map: Map
-	dungeons: ArrayList<Dungeon>
+	dungeons := ArrayList<Dungeon> new()
+	paths := ArrayList<Path> new()
 	
 	roomW := 20
 	roomH := 20
@@ -17,54 +18,64 @@ Generator: class {
 	roomMaxPoints := 10
 	
 	init: func (=map) {
-		dungeons = ArrayList<Dungeon> new()
 		dungeons add(Dungeon new(0, 0, map w, map h))
 	}
 
 	generate: func() {
-		bsp()
+		generateDungeons()
+		generatePaths()
 		for (dungeon in dungeons) {
-			// displayRoom(dungeon)
-			generateRoom(dungeon)
+			if (dungeon visible)
+				generateRoom(dungeon)
 		}
 	}
 	
-	bsp: func () {
-		running := true
-		while (running) {
+	generateDungeons: func {
+		while (true) {
 			newDungeons := ArrayList<Dungeon> new()
 			for (dungeon in dungeons) {
 				if (!dungeon split) {
-					vertical: Bool = rand(0, 1) as Bool
+					vertical := rand(0, 1) as Bool
 					if (vertical && dungeon h >= roomH) {
 						dungeon split = true
-						dungeon destroyed = true
+						dungeon visible = false
 						y: Int = rand(0, dungeon h - roomH)
-						newDungeons add(Dungeon new(dungeon x, dungeon y, dungeon w, roomH*0.5 + y))
-						newDungeons add(Dungeon new(dungeon x, dungeon y + roomH*0.5 + y, dungeon w, dungeon h - roomH*0.5 - y))
+						d1 := Dungeon new(dungeon x, dungeon y, dungeon w, roomH*0.5 + y)
+						d2 := Dungeon new(dungeon x, dungeon y + roomH*0.5 + y, dungeon w, dungeon h - roomH*0.5 - y)
+						paths add(d1 pair(d2))
+						newDungeons add(d1) .add(d2)
 					} else if (!vertical && dungeon w >= roomW) {
 						dungeon split = true
-						dungeon destroyed = true
-						x: Int = rand(0, dungeon w - roomW)
-						newDungeons add(Dungeon new(dungeon x, dungeon y, roomW*0.5 + x, dungeon h))
-						newDungeons add(Dungeon new(dungeon x + roomW*0.5 + x, dungeon y, dungeon w - roomW*0.5 - x, dungeon h))
+						dungeon visible = false
+						x := rand(0, dungeon w - roomW)
+						d1 := Dungeon new(dungeon x, dungeon y, roomW*0.5 + x, dungeon h)
+						d2 := Dungeon new(dungeon x + roomW*0.5 + x, dungeon y, dungeon w - roomW*0.5 - x, dungeon h)
+						paths add(d1 pair(d2))
+						newDungeons add(d1) .add(d2)
 					}
 					if (dungeon w < roomW*1.2 && dungeon h < roomH*1.2) dungeon split = true
 				}
 
 			}
 			for (dungeon in newDungeons) dungeons add(dungeon)
-			if (newDungeons size == 0) running = false
+			if (newDungeons size == 0) break
 		}
-		
-		deleteDungeons := ArrayList<Dungeon> new()
-		for (dungeon in dungeons) {
-			if (dungeon destroyed)
-				deleteDungeons add(dungeon)
+	}
+	
+	generatePaths: func {
+		i := paths size
+		while (i > 0) {
+			i -= 1
+			path := paths[i]
+			d0: Dungeon = path a
+			d1: Dungeon = path b
+			x0 := d0 x + d0 w/2
+			y0 := d0 y + d0 h/2
+			x1 := d1 x + d1 w/2
+			y1 := d1 y + d1 h/2
+			//while (map get(x0, y0))
+			map drawLine(x0, y0, x1, y1, Block PATH)
 		}
-		
-		for (dungeon in deleteDungeons)
-			dungeons remove(dungeon)
 	}
 	
 	displayRoom: func (dungeon: Dungeon) {
@@ -79,7 +90,17 @@ Generator: class {
 	}
 	
 	generateRoom: func (dungeon:Dungeon) {
-		points := ArrayList<Point> new()
+		padding := roomPadding clamp(0, 0.5)
+		margin := min(min(dungeon w * padding, dungeon h * padding), roomMargin)
+		x0 := dungeon x + margin
+		y0 := dungeon y + margin
+		x1 := dungeon x + dungeon h - margin
+		y1 := dungeon y + dungeon h - margin
+		map drawFilledRect(x0, y0, x1, y1, Block FLOOR)
+		map drawRect(x0, y0, x1, y1, Block WALL)
+	}
+	
+	generatePolygonRoom: func (dungeon:Dungeon) {
 		pointsA := ArrayList<Point> new()
 		pointsB := ArrayList<Point> new()
 		pointsC := ArrayList<Point> new()
@@ -88,54 +109,41 @@ Generator: class {
 		minPoints := max(1, roomMinPoints)
 		maxPoints := max(roomMaxPoints, minPoints)
 		margin := min(min(dungeon w * padding, dungeon h * padding), roomMargin)
-		borderX: Int = rand(2, dungeon w * padding)
-		borderY: Int = rand(2, dungeon h * padding)
+		borderX := rand(2, dungeon w * padding)
+		borderY := rand(2, dungeon h * padding)
 		for (i in 0..4) {
-			points: Int = rand(minPoints, maxPoints)
+			numPoints: Int = rand(minPoints, maxPoints)
 			match (i) {
 				case 0 =>
-					for (i in 1..points) pointsA add(Point new(rand(margin + borderX, dungeon w - borderX - margin), rand(margin, margin + borderY)))
+					for (i in 1..numPoints) pointsA add(Point new(rand(margin + borderX, dungeon w - borderX - margin), rand(margin, margin + borderY)))
 				case 1 =>
-					for (i in 1..points) pointsB add(Point new(rand(dungeon w - borderX - margin, dungeon w - margin), rand(borderY + margin, dungeon h - borderY - margin)))
+					for (i in 1..numPoints) pointsB add(Point new(rand(dungeon w - borderX - margin, dungeon w - margin), rand(borderY + margin, dungeon h - borderY - margin)))
 				case 2 =>
-					for (i in 1..points) pointsC add(Point new(rand(margin + borderX, dungeon w - borderX - margin), rand(dungeon h - borderY - margin, dungeon h - margin)))
+					for (i in 1..numPoints) pointsC add(Point new(rand(margin + borderX, dungeon w - borderX - margin), rand(dungeon h - borderY - margin, dungeon h - margin)))
 				case 3 =>
-					for (i in 1..points) pointsD add(Point new(rand(margin, borderX + margin), rand(borderY + margin, dungeon h - borderY - margin)))
+					for (i in 1..numPoints) pointsD add(Point new(rand(margin, borderX + margin), rand(borderY + margin, dungeon h - borderY - margin)))
 			}
 		}
 		pointsA sort(|a, b| a x > b x)
 		pointsB sort(|a, b| a y > b y)
 		pointsC sort(|a, b| a x < b x)
 		pointsD sort(|a, b| a y < b y)
+		
+		points := ArrayList<Point> new()
 		for (point in pointsA) points add(point)
 		for (point in pointsB) points add(point)
 		for (point in pointsC) points add(point)
 		for (point in pointsD) points add(point)
-		for (i in 0..(points size - 1)) {
-			addLine(points[i] clone(), points[i + 1] clone(), dungeon)
-		}
-		addLine(points[points size - 1] clone(), points[0] clone(), dungeon) // this line errors
+		for (i in 0..(points size - 1))
+			addLine(points[i], points[i + 1], dungeon)
+		addLine(points[points size - 1], points[0], dungeon)
 	}
 	
-	addLine: func (p, q: Point, dungeon: Dungeon) {
-		dx: Int = (p x - q x) abs()
-		dy: Int = (p y - q y) abs()
-		sx: Int = q x < p x ? 1 : -1
-		sy: Int = q y < p y ? 1 : -1
-		err: Int = dx - dy
-		while (true){
-			map set((q x + dungeon x) as UInt, (q y + dungeon y) as UInt, 1)
-			if (q x == p x && q y == p y) break
-			e2: Int = 2 * err
-			if (e2 > -dx) {
-				err -= dy
-				q x += sx
-			}
-			if (e2 < dx) {
-				err += dx
-				q y += sy
-			}
-		}
+	addLine: func (p, q:Point, dungeon:Dungeon) {
+		map drawLine(
+			p x + dungeon x, p y + dungeon y,
+			q x + dungeon x, q y + dungeon y,
+			Block WALL)
 	}
 	
 	rand: static func (a, b:Int) -> Int {
@@ -146,10 +154,32 @@ Generator: class {
 
 Dungeon: class extends Rect {
 	
-	split: Bool = false
-	destroyed: Bool = false
+	split := false
+	visible := true
+	parent: Dungeon
+	sister: Dungeon
+	paired := false
 	
 	init: func (x, y, w, h: Double) {
 		super(x, y, w, h)
 	}
+	pair: func (d:Dungeon) -> Path {
+		sister = d
+		d sister = this
+		paired = d paired = true
+		return Path new(this, d)
+	}
 }
+
+Path: class {
+	a, b: Dungeon
+	init: func (=a, =b)
+}
+
+//Path: class {
+//	a, b:Point
+//	init: func (x1,y1,x2,y2:Double) {
+//		a = Point new(x1, y1)
+//		b = Point new(x2, y2)
+//	}
+//}

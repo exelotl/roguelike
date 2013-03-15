@@ -31,8 +31,8 @@ Actor: class extends Entity {
 	}
 	
 	update: func (dt:Double) {
-		targetX := mapX*TILE_WIDTH
-		targetY := mapY*TILE_HEIGHT
+		targetX := mapX * TILE_W
+		targetY := mapY * TILE_H
 		if (x > targetX) x = max(targetX, x - animSpeed*dt)
 		else if (x < targetX) x = min(targetX, x + animSpeed*dt)
 		if (y > targetY) y = max(targetY, y - animSpeed*dt)
@@ -40,8 +40,8 @@ Actor: class extends Entity {
 	}
 	
 	setPos: func (=mapX, =mapY) {
-		x = mapX*TILE_WIDTH
-		y = mapY*TILE_HEIGHT
+		x = mapX * TILE_W
+		y = mapY * TILE_H
 	}
 	
 	damage: func (amount:Int, source:Actor) {
@@ -64,7 +64,7 @@ Actor: class extends Entity {
 	}
 	
 	canMove: func~pos (x, y:Int) -> Bool {
-		!(map get(x, y) isWall())
+		!map get(x, y) solid?
 	}
 	
 	

@@ -3,8 +3,8 @@ import vamos/Engine
 import Level
 
 // constants
-TILE_WIDTH := const 24
-TILE_HEIGHT := const 18
+TILE_W := const 24
+TILE_H := const 18
 
 main: func(argc:Int, argv:CString*) {
 	
