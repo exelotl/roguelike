@@ -2,8 +2,7 @@ import math/Random
 import structs/LinkedList
 import vamos/[Engine, State]
 import vamos/display/StateRenderer
-import Map, Actor, Player, Controls, Generator
-import mobs/Slime
+import Map, Actor, Player, Controls, Generator, Spawner
 
 Level: class extends State {
 	
@@ -11,6 +10,7 @@ Level: class extends State {
 	actors := LinkedList<Actor> new()
 	player: Player
 	controls: Controls
+	spawner: Spawner
 	
 	renderer: StateRenderer
 	
@@ -30,11 +30,10 @@ Level: class extends State {
 		player setPos(30, 30)
 		add(player)
 		
-		slime := Slime new() .setPos(20, 20)
-		add(slime)
-		
 		controls = Controls new()
 		add(controls)
+		
+		spawner = Spawner new(this)
 	}
 	
 	add: func~actor (actor:Actor) {
@@ -53,6 +52,7 @@ Level: class extends State {
 	
 	turn: func {
 		"updating the world" println()
+		spawner update()
 		for (actor in actors) {
 			actor takeTurn()
 		}

@@ -69,6 +69,8 @@ Actor: class extends Entity {
 	
 	
 	takeTurn: func {
+		if (level == null) return
+		
 		if (actions size == 0)
 			decideAction()
 			

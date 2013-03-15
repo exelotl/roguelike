@@ -118,9 +118,14 @@ Block: cover from UInt {
 	DOOR  = 5 : static const Block
 	
 	solids := static [ROCK, WALL] as ArrayList<Block>
+	spawnables := static [FLOOR, PATH] as ArrayList<Block>
 		
 	solid? : Bool {
 		get { solids contains?(this) }
+	}
+	
+	spawnable? : Bool {
+		get { spawnables contains?(this) }
 	}
 }
 
