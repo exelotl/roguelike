@@ -62,6 +62,24 @@ Map: class extends Entity {
 		for (y in y0+1..y1) set(x0, y, val)
 		for (y in y0+1..y1) set(x1, y, val)
 	}
+	
+	countRect: func (x0, y0, x1, y1:UInt, val:Block) -> Int {
+		n := 0
+		for (x in x0..x1+1)
+			for (y in y0..y1+1)
+				if (get(x, y) == val) n += 1
+		return n
+	}
+	countNeighbours: func (x, y:UInt, val:Block) -> Int {
+		(get(x+1,y+1) == val) as Int +
+		(get(x,  y+1) == val) as Int +
+		(get(x-1,y+1) == val) as Int +
+		(get(x+1,y  ) == val) as Int +
+		(get(x-1,y  ) == val) as Int +
+		(get(x+1,y-1) == val) as Int +
+		(get(x,  y-1) == val) as Int +
+		(get(x-1,y-1) == val) as Int
+	}
 		
 	clear: func (val:Block) {
 		for (x in 0..w)

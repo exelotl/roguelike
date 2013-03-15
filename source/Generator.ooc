@@ -12,22 +12,23 @@ Generator: class {
 	
 	roomW := 20
 	roomH := 20
-	roomPadding: Double = 0.1
+	roomPadding: Double = 0.3
 	roomMargin := 20
 	roomMinPoints := 6
 	roomMaxPoints := 10
 	
 	init: func (=map) {
-		dungeons add(Dungeon new(0, 0, map w, map h))
+		dungeons add(Dungeon new(0, 0, map w-1, map h-1))
 	}
 
 	generate: func() {
 		generateDungeons()
-		generatePaths()
 		for (dungeon in dungeons) {
 			if (dungeon visible)
 				generateRoom(dungeon)
 		}
+		generatePaths()
+		removeAdjacentDoors()
 	}
 	
 	generateDungeons: func {
@@ -67,15 +68,34 @@ Generator: class {
 		while (i > 0) {
 			i -= 1
 			path := paths[i]
-			d0: Dungeon = path a
-			d1: Dungeon = path b
-			x0 := d0 x + d0 w/2
-			y0 := d0 y + d0 h/2
-			x1 := d1 x + d1 w/2
-			y1 := d1 y + d1 h/2
-			//while (map get(x0, y0))
-			map drawLine(x0, y0, x1, y1, Block PATH)
+			x0 := path a x + path a w * 0.5
+			y0 := path a y + path a h * 0.5
+			x1 := path b x + path b w * 0.5
+			y1 := path b y + path b h * 0.5
+			if (x0 == x1) {
+				for (y in y0..y1+1)
+					plotPathBlock(x0, y)
+			} else {
+				for (x in x0..x1+1)
+					plotPathBlock(x, y0)
+			}
 		}
+	}
+	
+	plotPathBlock: func (x, y:UInt) {
+		b := map get(x, y)
+		map set(x, y, match b {
+			case Block ROCK => Block PATH
+			case Block WALL => Block DOOR
+			case => b
+		})
+	}
+	
+	removeAdjacentDoors: func {
+		for (x in 0..map w)
+			for (y in 0..map h)
+				if (map get(x, y) == Block DOOR && map countNeighbours(x, y, Block DOOR))
+					map set(x, y, Block WALL)
 	}
 	
 	displayRoom: func (dungeon: Dungeon) {
@@ -97,7 +117,7 @@ Generator: class {
 		x1 := dungeon x + dungeon h - margin
 		y1 := dungeon y + dungeon h - margin
 		map drawFilledRect(x0, y0, x1, y1, Block FLOOR)
-		map drawRect(x0, y0, x1, y1, Block WALL)
+		map drawRect(x0-1, y0-1, x1+1, y1+1, Block WALL)
 	}
 	
 	generatePolygonRoom: func (dungeon:Dungeon) {

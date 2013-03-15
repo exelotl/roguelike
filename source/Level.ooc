@@ -47,6 +47,8 @@ Level: class extends State {
 		super(dt)
 		renderer camX = player x - renderer width/2
 		renderer camY = player y - renderer height/2
+		
+		entities sort(|a, b| a y > b y)
 	}
 	
 	turn: func {
@@ -54,12 +56,6 @@ Level: class extends State {
 		for (actor in actors) {
 			actor takeTurn()
 		}
-		
-		entities sort(|a, b|
-			return a instanceOf?(Actor) \
-			    && b instanceOf?(Actor) \
-			    && a as Actor mapY > b as Actor mapY
-		)
 	}
 	
 }
