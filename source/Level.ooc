@@ -2,11 +2,12 @@ import math/Random
 import structs/LinkedList
 import vamos/[Engine, State]
 import vamos/display/StateRenderer
-import Map, Actor, Player, Controls, Generator, Spawner
+import Map, Actor, Player, Controls, Generator, Darkness, Spawner
 
 Level: class extends State {
 	
 	map: Map
+	darkness: Darkness
 	actors := LinkedList<Actor> new()
 	player: Player
 	controls: Controls
@@ -26,6 +27,9 @@ Level: class extends State {
 		generator := Generator new(map)
 		generator generate()
 		
+		darkness = Darkness new(this)
+		add(darkness)
+		
 		player = Player new()
 		player setPos(30, 30)
 		add(player)
@@ -34,6 +38,9 @@ Level: class extends State {
 		add(controls)
 		
 		spawner = Spawner new(this)
+		darkness step()
+		
+		
 	}
 	
 	add: func~actor (actor:Actor) {
@@ -48,6 +55,8 @@ Level: class extends State {
 		renderer camY = player y - renderer height/2
 		
 		entities sort(|a, b| a y > b y)
+		entities remove(darkness)
+		entities add(darkness)
 	}
 	
 	turn: func {
@@ -56,6 +65,7 @@ Level: class extends State {
 		for (actor in actors) {
 			actor takeTurn()
 		}
+		darkness step()
 	}
 	
 }

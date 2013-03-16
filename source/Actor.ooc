@@ -1,7 +1,7 @@
 import structs/LinkedList
 import math/Random
 import vamos/[Entity, Util]
-import vamos/graphics/SpriteMap
+import vamos/graphics/Anim
 import main, Level, Map
 
 // dungeon entities and stuff
@@ -13,12 +13,13 @@ Actor: class extends Entity {
 	mapX: Int
 	mapY: Int
 	health: Int
+	brightness: Int
 	facing: Direction
 	speed: Speed
 	actions := LinkedList<Action> new()
 	
-	animSpeed: Double = 200
-	anim: SpriteMap
+	animSpeed: Double = 170
+	anim: Anim
 	
 	init: func {
 		
