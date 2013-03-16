@@ -29,10 +29,12 @@ Player: class extends Actor {
 		match {
 			case block walkable? =>
 				a = Action new(ActionType MOVE)
-				a direction = d
+			case block door? =>
+				a = Action new(ActionType OPEN)
 			case =>
 				a = Action new(ActionType WAIT)
 		}
+		a direction = d
 		return a
 	}
 	

@@ -25,12 +25,13 @@ Darkness: class extends Entity {
 		actors = level actors
 		map = level map
 		w = map w
-		h = map h
+		h = map h + 1
 		data = gc_malloc(w * h * UInt size)
 		buffer = gc_malloc(w * h * UInt size)
 		tiles = TileMap new("darkness.png", w, h, TILE_W, TILE_H)
 		tiles data = data
 		graphic = tiles
+		y -= 12
 	}
 	
 	update: func~step {
@@ -51,8 +52,7 @@ Darkness: class extends Entity {
 		for (x in 1..w-1) {
 			for (y in 1..h-1) {
 				o:Int = get(x, y)
-				n := o
-				n = max(n, get(x+1, y+1))
+				n := max(o, get(x+1, y+1))
 				n = max(n, get(x,   y+1))
 				n = max(n, get(x-1, y+1))
 				n = max(n, get(x+1, y))
@@ -72,13 +72,8 @@ Darkness: class extends Entity {
 	smooth: func {
 		for (x in 1..w-1) {
 			for (y in 1..h-1) {
-				o := get(x, y)
-				n := get(x+1, y) +
-				     get(x-1, y) +
-				     get(x, y+1) +
-				     get(x, y-1)
-				n /= 4
-				set(buffer, x, y, max(n, o))
+				n := get(x+1,y) + get(x-1,y) + get(x,y+1) + get(x,y-1)
+				set(buffer, x, y, max(n>>2, get(x, y)))
 			}
 		}
 		(data, buffer) = (buffer, data)

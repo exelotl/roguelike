@@ -17,21 +17,18 @@ Controls: class extends Entity {
 	
 	update: func (dt:Double) {
 		action: Action
-		if (Input keyPressed(SDLK_UP)) {
-			action = Action new(ActionType MOVE)
-			action direction = Direction UP
-		}
-		if (Input keyPressed(SDLK_DOWN)) {
-			action = Action new(ActionType MOVE)
-			action direction = Direction DOWN
-		}
-		if (Input keyPressed(SDLK_LEFT)) {
-			action = Action new(ActionType MOVE)
-			action direction = Direction LEFT
-		}
-		if (Input keyPressed(SDLK_RIGHT)) {
-			action = Action new(ActionType MOVE)
-			action direction = Direction RIGHT
+		
+		if (level animating?) return
+		
+		match {
+			case Input keyHeld(SDLK_UP) =>
+				action = player directionAction(Direction UP)
+			case Input keyHeld(SDLK_DOWN) =>
+				action = player directionAction(Direction DOWN)
+			case Input keyHeld(SDLK_LEFT) =>
+				action = player directionAction(Direction LEFT)
+			case Input keyHeld(SDLK_RIGHT) =>
+				action = player directionAction(Direction RIGHT)
 		}
 		
 		if (action) {

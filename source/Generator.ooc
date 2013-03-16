@@ -77,19 +77,19 @@ Generator: class {
 			y1 := path b y + path b h * 0.5
 			if (x0 == x1) {
 				for (y in y0..y1+1)
-					plotPathBlock(x0, y)
+					plotPathBlock(x0, y, 'v')
 			} else {
 				for (x in x0..x1+1)
-					plotPathBlock(x, y0)
+					plotPathBlock(x, y0, 'h')
 			}
 		}
 	}
 	
-	plotPathBlock: func (x, y:UInt) {
+	plotPathBlock: func (x, y:UInt, axis:Char) {
 		b := map get(x, y)
 		map set(x, y, match b {
 			case Block ROCK => Block PATH
-			case Block WALL => Block DOOR
+			case Block WALL => axis == 'h' ? Block DOOR_CLOSED_H : Block DOOR_CLOSED_V
 			case => b
 		})
 	}
@@ -97,7 +97,7 @@ Generator: class {
 	removeAdjacentDoors: func {
 		for (x in 0..map w)
 			for (y in 0..map h)
-				if (map get(x, y) == Block DOOR && map countNeighbours(x, y, Block DOOR))
+				if (map get(x, y) door? && map countNeighbours(x, y, |b| b door?))
 					map set(x, y, Block PATH)
 	}
 	

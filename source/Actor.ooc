@@ -105,9 +105,11 @@ Actor: class extends Entity {
 	
 	doAction: func (action:Action) {
 		match (action type) {
-			case ActionType MOVE => move(action)
 			case ActionType WAIT => wait(action)
+			case ActionType MOVE => move(action)
+			case ActionType OPEN => open(action)
 			case ActionType ATTACK => attack(action)
+			case => raise("No such action [%d]!" format(action type))
 		}
 	}
 	
@@ -119,6 +121,15 @@ Actor: class extends Entity {
 		action complete = true
 	}
 	wait: func (action:Action) {
+		action complete = true
+	}
+	open: func (action:Action) {
+		(x, y) := (mapX, mapY)
+		action direction move(x&, y&)
+		block := map get(x, y)
+		if (block closed?) {
+			map set(x, y, block open())
+		}
 		action complete = true
 	}
 	attack: func (action:Action) {
@@ -140,7 +151,7 @@ Action: class {
 }
 
 ActionType: enum {
-	MOVE, WAIT, ATTACK
+	WAIT, MOVE, OPEN, ATTACK
 }
 
 Speed: enum {

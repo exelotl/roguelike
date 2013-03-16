@@ -100,6 +100,16 @@ Map: class extends Entity {
 		(get(x,  y-1) == val) as Int +
 		(get(x-1,y-1) == val) as Int
 	}
+	countNeighbours: func~condition (x, y:UInt, f:Func(Block)->Bool) -> Int {
+		f(get(x+1,y+1)) as Int +
+		f(get(x,  y+1)) as Int +
+		f(get(x-1,y+1)) as Int +
+		f(get(x+1,y  )) as Int +
+		f(get(x-1,y  )) as Int +
+		f(get(x+1,y-1)) as Int +
+		f(get(x,  y-1)) as Int +
+		f(get(x-1,y-1)) as Int
+	}
 		
 	clear: func (val:Block) {
 		for (x in 0..w)
@@ -110,15 +120,19 @@ Map: class extends Entity {
 
 Block: cover from UInt {
 	
-	EMPTY = 0 : static const Block
-	ROCK  = 1 : static const Block
-	WALL  = 2 : static const Block
-	FLOOR = 3 : static const Block
-	PATH  = 4 : static const Block
-	DOOR  = 5 : static const Block
+	EMPTY         = 0 : static const Block
+	ROCK          = 1 : static const Block
+	WALL          = 2 : static const Block
+	FLOOR         = 3 : static const Block
+	PATH          = 4 : static const Block
+	DOOR_CLOSED_H = 5 : static const Block
+	DOOR_OPEN_H   = 6 : static const Block
+	DOOR_CLOSED_V = 7 : static const Block
+	DOOR_OPEN_V   = 8 : static const Block
 	
-	solids := static [ROCK, WALL] as ArrayList<Block>
+	solids := static [ROCK, WALL, DOOR_CLOSED_H, DOOR_CLOSED_V] as ArrayList<Block>
 	spawnables := static [FLOOR, PATH] as ArrayList<Block>
+	doors := static [DOOR_CLOSED_H, DOOR_OPEN_H, DOOR_CLOSED_V, DOOR_OPEN_V] as ArrayList<Block>
 		
 	solid? : Bool {
 		get { solids contains?(this) }
@@ -126,8 +140,31 @@ Block: cover from UInt {
 	walkable? : Bool {
 		get { !solids contains?(this) }
 	}
+	door? : Bool {
+		get { doors contains?(this) }
+	}
 	spawnable? : Bool {
 		get { spawnables contains?(this) }
+	}
+	opened? : Bool {
+		get { this == DOOR_OPEN_V || this == DOOR_OPEN_H }
+	}
+	closed? : Bool {
+		get { !opened? }
+	}
+	open: func -> Block {
+		match this {
+			case DOOR_CLOSED_H => DOOR_OPEN_H
+			case DOOR_CLOSED_V => DOOR_OPEN_V
+			case => this
+		}
+	}
+	close: func -> Block {
+		match this {
+			case DOOR_OPEN_H => DOOR_CLOSED_H
+			case DOOR_OPEN_V => DOOR_CLOSED_V
+			case => this
+		}
 	}
 }
 

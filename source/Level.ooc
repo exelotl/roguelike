@@ -12,7 +12,10 @@ Level: class extends State {
 	player: Player
 	controls: Controls
 	spawner: Spawner
-	
+	turnTime: Double
+	animating? : Bool {
+		get { turnTime >= 0 }
+	}
 	renderer: StateRenderer
 	
 	init: func {
@@ -55,6 +58,9 @@ Level: class extends State {
 		entities sort(|a, b| a y > b y)
 		entities remove(darkness)
 		entities add(darkness)
+		
+		if (animating?)
+			turnTime -= dt
 	}
 	
 	turn: func {
@@ -64,6 +70,7 @@ Level: class extends State {
 			actor takeTurn()
 		}
 		darkness update()
+		turnTime += 0.16
 	}
 	
 }
