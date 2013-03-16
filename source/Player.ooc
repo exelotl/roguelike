@@ -2,12 +2,12 @@ import structs/HashMap
 import vamos/Entity
 import vamos/graphics/Anim
 import vamos/comps/Timer
-import Actor, Level
+import Actor, Level, Map
 
 Player: class extends Actor {
 	
 	init: func {
-		brightness = 10
+		brightness = 20
 		anim = Anim new("player.png", 24, 28)
 		anim y = -8
 		anim play([10], 15)
@@ -21,10 +21,24 @@ Player: class extends Actor {
 		super(dt)
 	}
 	
+	directionAction: func (d:Direction) -> Action {
+		(x, y) := (mapX, mapY)
+		d move(x&, y&)
+		block := map get(x, y)
+		a: Action
+		match {
+			case block walkable? =>
+				a = Action new(ActionType MOVE)
+				a direction = d
+			case =>
+				a = Action new(ActionType WAIT)
+		}
+		return a
+	}
+	
 	move: func(action:Action) {
 		super(action)
 		anim reset() .play(getWalkAnim(facing), 10) .once()
-		"%d, %d" printfln(mapX, mapY)
 	}
 	
 	_foot := false

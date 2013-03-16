@@ -14,6 +14,7 @@ Actor: class extends Entity {
 	mapY: Int
 	health: Int
 	brightness: Int
+	canHide: Bool
 	facing: Direction
 	speed: Speed
 	actions := LinkedList<Action> new()
@@ -38,6 +39,12 @@ Actor: class extends Entity {
 		else if (x < targetX) x = min(targetX, x + animSpeed*dt)
 		if (y > targetY) y = max(targetY, y - animSpeed*dt)
 		else if (y < targetY) y = min(targetY, y + animSpeed*dt)
+		
+		graphic visible = canHide ? visibility > 15 : true
+	}
+	
+	visibility: Int {
+		get { level darkness get(mapX, mapY) }
 	}
 	
 	setPos: func (=mapX, =mapY) {
@@ -53,19 +60,17 @@ Actor: class extends Entity {
 		}
 	}
 	
+	
 	die: func (source:Actor)
 	
-	canMove: func~dir (dir:Direction) -> Bool {
+	canMove: func~dir (d:Direction) -> Bool {
 		(x, y) := (mapX, mapY)
-		if (dir & Direction UP) y -= 1
-		if (dir & Direction DOWN) y += 1
-		if (dir & Direction LEFT) x -= 1
-		if (dir & Direction RIGHT) x += 1
-		canMove(x, y)
+		d move(x&, y&)
+		return canMove(x, y)
 	}
 	
 	canMove: func~pos (x, y:Int) -> Bool {
-		!map get(x, y) solid?
+		map get(x, y) walkable?
 	}
 	
 	
@@ -88,13 +93,8 @@ Actor: class extends Entity {
 	
 	decideAction: func {
 		a:Action
-		match (Random randInt(0, 1)) {
-			case 1 =>
-				a = Action new(ActionType MOVE)
-				a direction = Direction random()
-			case =>
-				a = Action new(ActionType WAIT)
-		}
+		a = Action new(ActionType MOVE)
+		a direction = Direction random()
 		addAction(a)
 	}
 	
@@ -114,12 +114,7 @@ Actor: class extends Entity {
 	move: func (action:Action) {
 		facing = action direction
 		if (canMove(facing)) {
-			match (facing) {
-				case Direction UP => mapY -= 1
-				case Direction DOWN => mapY += 1
-				case Direction LEFT => mapX -= 1
-				case Direction RIGHT => mapX += 1
-			}
+			facing move(mapX&, mapY&)
 		}
 		action complete = true
 	}
@@ -160,5 +155,13 @@ Direction: cover from Int {
 	
 	random: static func -> Direction {
 		1 << Random randInt(0, 3)
+	}
+	
+	// move the coordinates one block in this direction
+	move: func (x, y:Int*) {
+		if (this & Direction UP) y@ -= 1
+		if (this & Direction DOWN) y@ += 1
+		if (this & Direction LEFT) x@ -= 1
+		if (this & Direction RIGHT) x@ += 1
 	}
 }

@@ -27,9 +27,6 @@ Level: class extends State {
 		generator := Generator new(map)
 		generator generate()
 		
-		darkness = Darkness new(this)
-		add(darkness)
-		
 		player = Player new()
 		player setPos(30, 30)
 		add(player)
@@ -38,9 +35,10 @@ Level: class extends State {
 		add(controls)
 		
 		spawner = Spawner new(this)
-		darkness step()
 		
-		
+		darkness = Darkness new(this)
+		add(darkness)
+		darkness update()
 	}
 	
 	add: func~actor (actor:Actor) {
@@ -65,7 +63,7 @@ Level: class extends State {
 		for (actor in actors) {
 			actor takeTurn()
 		}
-		darkness step()
+		darkness update()
 	}
 	
 }

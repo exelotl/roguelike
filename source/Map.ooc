@@ -123,7 +123,9 @@ Block: cover from UInt {
 	solid? : Bool {
 		get { solids contains?(this) }
 	}
-	
+	walkable? : Bool {
+		get { !solids contains?(this) }
+	}
 	spawnable? : Bool {
 		get { spawnables contains?(this) }
 	}
