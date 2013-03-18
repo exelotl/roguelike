@@ -150,7 +150,7 @@ Block: cover from UInt {
 		get { this == DOOR_OPEN_V || this == DOOR_OPEN_H }
 	}
 	closed? : Bool {
-		get { !opened? }
+		get { this == DOOR_CLOSED_V || this == DOOR_CLOSED_H }
 	}
 	open: func -> Block {
 		match this {
