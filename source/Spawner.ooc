@@ -27,13 +27,19 @@ Spawner: class {
 		for (i in 0..30) {
 			x := Random randRange(0, map w)
 			y := Random randRange(0, map h)
-			if (map get(x, y) spawnable?) {
+			if (canSpawn(x, y)) {
 				mob := makeMob()
 				mob setPos(x, y)
 				level add(mob)
 				return
 			}
 		}
+	}
+	
+	canSpawn: func (x, y:UInt) -> Bool {
+		map get(x, y) spawnable? \
+		&& !map hasFlag(x, y, BlockFlag OCCUPIED) \
+		&& level getBrightness(x,y) < 10
 	}
 	
 	makeMob: func -> Actor {

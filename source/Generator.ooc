@@ -122,7 +122,7 @@ Generator: class {
 		x1 := dungeon x + dungeon w - margin - borderX
 		y1 := dungeon y + dungeon h - margin - borderY
 		map drawFilledRect(x0, y0, x1, y1, Block FLOOR)
-		map drawRect(x0-1, y0-1, x1+1, y1+1, Block WALL)
+		map drawRect(x0, y0, x1, y1, Block WALL)
 	}
 	
 	generatePolygonRoom: func (dungeon:Dungeon) {

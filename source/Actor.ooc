@@ -1,4 +1,4 @@
-import structs/LinkedList
+import math, structs/LinkedList
 import math/Random
 import vamos/[Entity, Util]
 import vamos/graphics/Anim
@@ -15,11 +15,14 @@ Actor: class extends Entity {
 	health: Int
 	brightness: Int
 	canHide: Bool
+	inCombat: Bool
 	facing: Direction
 	speed: Speed
 	actions := LinkedList<Action> new()
 	
 	animSpeed: Double = 170
+	animWalking? := false
+	animAttacking? := false
 	anim: Anim
 	
 	init: func {
@@ -35,16 +38,20 @@ Actor: class extends Entity {
 	update: func (dt:Double) {
 		targetX := mapX * TILE_W
 		targetY := mapY * TILE_H
+		
 		if (x > targetX) x = max(targetX, x - animSpeed*dt)
 		else if (x < targetX) x = min(targetX, x + animSpeed*dt)
 		if (y > targetY) y = max(targetY, y - animSpeed*dt)
 		else if (y < targetY) y = min(targetY, y + animSpeed*dt)
 		
-		graphic visible = canHide ? visibility > 15 : true
+		graphic visible = visible?
 	}
 	
 	visibility: Int {
 		get { level darkness get(mapX, mapY) }
+	}
+	visible?: Bool {
+		get { canHide ? (visibility > 15 || hasNeighbour("player")) : true }
 	}
 	
 	setPos: func (=mapX, =mapY) {
@@ -60,8 +67,19 @@ Actor: class extends Entity {
 		}
 	}
 	
+	die: func (source:Actor) {
+		level remove(this)
+	}
 	
-	die: func (source:Actor)
+	hasNeighbour: func (type:String) -> Bool {
+		for (actor in level actors)
+			if (actor != this \
+			&& actor type == type \
+			&& (actor mapX - mapX) abs() <= 1 \
+			&& (actor mapY - mapY) abs() <= 1 )
+				return true
+		false
+	}
 	
 	canMove: func~dir (d:Direction) -> Bool {
 		(x, y) := (mapX, mapY)
@@ -70,7 +88,7 @@ Actor: class extends Entity {
 	}
 	
 	canMove: func~pos (x, y:Int) -> Bool {
-		map get(x, y) walkable?
+		map get(x, y) walkable? && !map hasFlag(x, y, BlockFlag OCCUPIED)
 	}
 	
 	
@@ -104,6 +122,9 @@ Actor: class extends Entity {
 	}
 	
 	doAction: func (action:Action) {
+		if (action direction)
+			facing = action direction
+		
 		match (action type) {
 			case ActionType WAIT => wait(action)
 			case ActionType MOVE => move(action)
@@ -114,13 +135,16 @@ Actor: class extends Entity {
 	}
 	
 	move: func (action:Action) {
-		facing = action direction
 		if (canMove(facing)) {
+			map unsetFlag(mapX, mapY, BlockFlag OCCUPIED)
 			facing move(mapX&, mapY&)
+			map setFlag(mapX, mapY, BlockFlag OCCUPIED)
 		}
+		action successful = true
 		action complete = true
 	}
 	wait: func (action:Action) {
+		action successful = true
 		action complete = true
 	}
 	open: func (action:Action) {
@@ -130,9 +154,16 @@ Actor: class extends Entity {
 		if (block closed?) {
 			map set(x, y, block open())
 		}
+		action successful = true
 		action complete = true
 	}
 	attack: func (action:Action) {
+		action target damage(1, this)
+		(dx, dy) := (0, 0)
+		facing move(dx&, dy&)
+		x += dx * 20
+		y += dy * 20
+		action successful = true
 		action complete = true
 	}
 	
@@ -142,9 +173,10 @@ Action: class {
 	
 	type: ActionType
 	complete: Bool
-	source: Entity
-	target: Entity
-	turns: UInt = 1
+	successful: Bool
+	source: Actor
+	target: Actor
+	turns: Int = 1
 	direction: Direction
 	
 	init: func (=type)

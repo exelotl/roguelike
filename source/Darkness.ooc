@@ -62,7 +62,8 @@ Darkness: class extends Entity {
 				n = max(n, get(x-1, y-1))
 				block := map get(x, y)
 				if (block solid?) n = 0
-				if (block == Block PATH) n -= 5
+				if (block == Block PATH && map countNeighbours(x, y, |b| b solid?) > 4)
+					n -= 5
 				set(buffer, x, y, max(n,o))
 			}
 		}
@@ -80,13 +81,15 @@ Darkness: class extends Entity {
 	}
 	
 	get: inline func(x, y:UInt) -> UInt {
-		data[x + y*w]
+		(x < w && y < h) ? data[x + y*w] : 1
 	}
 	set: inline func(arr:UInt*, x, y:UInt, val:Int) {
-		arr[x + y*w] = val clamp(1, MAX_LIGHT)
+		if (x < w && y < h)
+			arr[x + y*w] = val clamp(1, MAX_LIGHT)
 	}
 	add: inline func(arr:UInt*, x, y:UInt, val:Int) {
-		arr[x + y*w] = (arr[x + y*w] + val) clamp(1, MAX_LIGHT)
+		if (x < w && y < h)
+			arr[x + y*w] = (arr[x + y*w] + val) clamp(1, MAX_LIGHT)
 	}
 	
 	clear: func (arr:UInt*) {

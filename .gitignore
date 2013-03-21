@@ -1,6 +1,7 @@
 roguelike
 *.exe
 *.dll
+*.zip
 *.sublime-project
 *.sublime-workspace
 .libs

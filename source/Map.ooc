@@ -6,12 +6,14 @@ import main, BlockRow
 Map: class extends Entity {
 	
 	data: Block*
+	flags: BlockFlag*
 	w, h: UInt // size in tiles
 	
 	tilemap: TileMap
 	
 	init: func (=w, =h) {
-		data = gc_malloc(w * h * UInt size) as Block*
+		data = gc_malloc(w * h * Block size) as Block*
+		flags = gc_malloc(w * h * BlockFlag size) as BlockFlag*
 		clear(Block ROCK)
 		
 		tilemap = TileMap new("tiles.png", w, h, TILE_W, TILE_H)
@@ -30,6 +32,18 @@ Map: class extends Entity {
 	set: inline func(x, y:UInt, val:Block) {
 		if (x < w && y < h)
 			data[x + y*w] = val
+	}
+	
+	setFlag: func (x, y:UInt, flag:BlockFlag) {
+		if (x < w && y < h)
+			flags[x + y*w] |= flag
+	}
+	unsetFlag: func (x, y:UInt, flag:BlockFlag) {
+		if (x < w && y < h)
+			flags[x + y*w] &= ~flag
+	}
+	hasFlag: func (x, y:UInt, flag:BlockFlag) -> Bool {
+		(x < w && y < h) ? (flags[x + y*w] & flag) != 0 : false
 	}
 
 	drawLine: func (x, y, x2, y2:Int, val:Block) {
@@ -166,5 +180,9 @@ Block: cover from UInt {
 			case => this
 		}
 	}
+}
+
+BlockFlag: cover from UInt {
+	OCCUPIED = 0x0001 : static const BlockFlag
 }
 

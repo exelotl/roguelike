@@ -2,24 +2,39 @@ import math/Random
 import structs/LinkedList
 import vamos/[Engine, State]
 import vamos/display/StateRenderer
-import Map, Actor, Player, Controls, Generator, Darkness, Spawner
+import Map, Log, Actor, Player, Controls, Generator, Darkness, Spawner
 
 Level: class extends State {
 	
 	map: Map
 	darkness: Darkness
+	log: Log
 	actors := LinkedList<Actor> new()
 	player: Player
 	controls: Controls
 	spawner: Spawner
-	turnTime: Double
+	animTime: Double
 	animating? : Bool {
-		get { turnTime >= 0 }
+		get { animTime >= 0 }
 	}
 	renderer: StateRenderer
 	
 	init: func {
-		
+		onEntityAdded add(|e|
+			if (e instanceOf?(Actor)) {
+				actors add(e as Actor)
+				"adding actor '%s'" printfln(e class name)
+				darkness update()
+			}
+		)
+		onEntityRemoved add(|e|
+			if (e instanceOf?(Actor)) {
+				a := e as Actor
+				actors remove(a)
+				map unsetFlag(a mapX, a mapY, BlockFlag OCCUPIED)
+				"removing actor '%s'" printfln(e class name)
+			}
+		)
 	}
 	
 	create: func {
@@ -41,13 +56,10 @@ Level: class extends State {
 		
 		darkness = Darkness new(this)
 		add(darkness)
-		darkness update()
 	}
 	
-	add: func~actor (actor:Actor) {
-		"adding actor '%s'" printfln(actor class name)
-		actors add(actor)
-		super(actor)
+	getBrightness: func (x, y:Int) -> UInt {
+		darkness get(x, y)
 	}
 	
 	update: func (dt:Double) {
@@ -60,17 +72,23 @@ Level: class extends State {
 		entities add(darkness)
 		
 		if (animating?)
-			turnTime -= dt
+			animTime -= dt
 	}
 	
 	turn: func {
-		"updating the world" println()
 		spawner update()
 		for (actor in actors) {
 			actor takeTurn()
 		}
 		darkness update()
-		turnTime += 0.16
+		animTime += 0.16
+	}
+	
+	getActor: func (x, y:Int) -> Actor {
+		for (actor in actors)
+			if (actor mapX == x && actor mapY == y)
+				return actor
+		null
 	}
 	
 }
